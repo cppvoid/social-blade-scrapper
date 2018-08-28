@@ -3,10 +3,10 @@ const { JSDOM } = require('jsdom')
 
 const getSiteStatistics = async (selector) => {
   let result
-
+  const path = selector.site === 'youtube' ? '/channel/' : '/user/'
   try {
     const options = {
-      url: 'https://socialblade.com/' + selector.site + '/channel/' + selector.username,
+      url: 'https://socialblade.com/' + selector.site + path + selector.username,
       headers: {
           'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.95 Safari/537.36'
       }
@@ -28,7 +28,6 @@ const getSiteStatistics = async (selector) => {
     }
 
   } catch(error) {
-    console.log(error.message)
     console.log('could not fetch the information for ' + selector.username + ' on ' + selector.site)
     return Promise.reject(error.message)
   }

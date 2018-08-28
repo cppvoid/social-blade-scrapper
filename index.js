@@ -10,9 +10,9 @@ const INSTAGRAM_PROP = 'Nick Instagram'
 const TWITCH_PROP = 'Nick Twitch'
 
 async function scrapeUser(browser, socialMedia, user) {
-  
+
   let scrapedUser = {};
-  
+
   try {
     const page = await browser.newPage();
     await page.goto(mediaPage(socialMedia, user), { waitUntil: "domcontentloaded"});
@@ -21,8 +21,8 @@ async function scrapeUser(browser, socialMedia, user) {
     // console.log(scrapedUser)
   } catch (error) {
     console.log(error)
-  }  
-  
+  }
+
   return Promise.resolve(scrapedUser); // Return the data
 }
 
@@ -30,7 +30,7 @@ async function scrapeUsers(users) {
 
   let data = []
   let promises = [];
-  const browser = await puppeteer.launch({headless: true});  
+  const browser = await puppeteer.launch({headless: true});
   for(let i = 0; i < users.length; i++) {
     if(!users[i][YOUTUBE_PROP]) continue
     promises.push(scrapeUser(browser, 'youtube', users[i][YOUTUBE_PROP]).then( scrapedUser => data.push(scrapedUser)));
@@ -46,20 +46,20 @@ async function scrapeUsers(users) {
 
     console.log('...');
   }
-  
+
   await Promise.all(promises);
 
-  browser.close(); 
+  browser.close();
   return data;
 }
 
 function mediaPage(socialMedia, user) {
   return `https://socialblade.com/${socialMedia}/${channelOrUser(socialMedia)}/${user}`
-} 
+}
 
 function channelOrUser( socialMedia ) {
   return socialMedia === 'youtube' ? 'channel' : 'user'
-} 
+}
 
 function scrapeMedia(argsArray) {
   const socialMedia = argsArray[0]
@@ -73,7 +73,7 @@ function scrapeMedia(argsArray) {
       subs = document.querySelector('body > div:nth-child(12) > div:nth-child(2) > p:nth-child(3) > span:nth-child(2)');
       views = document.querySelector('body > div:nth-child(12) > div:nth-child(2) > p:nth-child(3) > span:nth-child(3)');
     }
-    
+
     if( !subs || !views) {
       subs = 'error'
       views = 'error'
@@ -119,6 +119,9 @@ const SLO = XLSX.utils.sheet_to_json(workbook.Sheets.SLO)
 // const alecs = SLO[0]
 // console.log(SLO)
 const youtubeSelectors = []
+const twitterSelectors = []
+const instagramSelectors = []
+const twitchSelectors = []
 
 const getQuerySelectors = (username, site) => {
 
@@ -136,21 +139,53 @@ const getQuerySelectors = (username, site) => {
 
 SLO.forEach( row => {
   if(!!row[YOUTUBE_PROP])
-  youtubeSelectors.push(getQuerySelectors(row[YOUTUBE_PROP], 'youtube'))
+    youtubeSelectors.push(getQuerySelectors(row[YOUTUBE_PROP], 'youtube'))
+  if(row[TWITTER_PROP])
+    twitterSelectors.push(getQuerySelectors(row[TWITTER_PROP], 'twitter'))
+  if(row[INSTAGRAM_PROP])
+    instagramSelectors.push(getQuerySelectors(row[INSTAGRAM_PROP], 'instagram'))
+  if(row[TWITCH_PROP])
+    twitchSelectors.push(getQuerySelectors(row[TWITCH_PROP], 'twitch'))
 })
 
 
 const youtubeData = []
-
-
+const twitterData = []
+const instagramData = []
+const twitchData = []
 
 for( selector of youtubeSelectors) {
   getSiteStatistics(selector).then( res => {
     youtubeData.push(res)
-    console.log(res)
   }).catch( err => err)
 }
 
+for( selector of twitterSelectors) {
+  getSiteStatistics(selector).then( res => {
+    twitterData.push(res)
+  }).catch( err => err)
+}
+
+for( selector of instagramSelectors) {
+  getSiteStatistics(selector).then( res => {
+    instagramData.push(res)
+  }).catch( err => err)
+}
+
+for( selector of twitchSelectors) {
+  getSiteStatistics(selector).then( res => {
+    const parsedQuerySelectors = res.querySelectors.map(querySelector => {
+      const [number] = querySelector.content.trim().split(' ')
+      querySelector.content = number
+
+      return querySelector
+    })
+
+    twitchData.push({...res, parsedQuerySelectors})
+  }).catch( err => err)
+}
+
+twitchData.forEach(data => console.log(data))
 
 // for debuging the scraping
 // const alecs = require('./alecs.json')
@@ -171,7 +206,7 @@ for( selector of youtubeSelectors) {
 //     return row
 //     // console.log(youtubeData)
 //   })
-  
+
 //   workbook.Sheets.SLO = XLSX.utils.json_to_sheet(updatedSLO)
 
 //   XLSX.writeFile(workbook, 'workpluz.xlsx', null)
@@ -190,4 +225,3 @@ for( selector of youtubeSelectors) {
 // scrapeUsers('twitch', SLO.map(entry => entry['Twitch name'])).then( data => {
 //   console.log(data);
 // })
-

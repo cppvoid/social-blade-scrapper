@@ -35,13 +35,13 @@ module.exports = [
     querySelectors: [
       {
         name: 'followers',
-        querySelector: '#stats-top-data-module-wrap > div:nth-child(2) > div.stats-top-data-content'
+        querySelector: '#YouTubeUserTopInfoBlock > div:nth-child(3) > span:nth-child(3)'
       }, {
         name: 'following',
-        querySelector: '#stats-top-data-module-wrap > div:nth-child(3) > div.stats-top-data-content'
+        querySelector: '#YouTubeUserTopInfoBlock > div:nth-child(4) > span:nth-child(3)'
       }, {
         name: 'uploads',
-        querySelector: '#stats-top-data-module-wrap > div:nth-child(4) > div.stats-top-data-content'
+        querySelector: '#YouTubeUserTopInfoBlock > div:nth-child(2) > span:nth-child(3)'
       }
     ]
   }, {
