@@ -44,5 +44,17 @@ module.exports = [
         querySelector: '#stats-top-data-module-wrap > div:nth-child(4) > div.stats-top-data-content'
       }
     ]
+  }, {
+    site: 'twitch',
+    querySelectors: [
+      {
+        name: 'followers',
+        querySelector: 'body > div:nth-child(10) > div:nth-child(1) > div:nth-child(2) > p:nth-child(3)'
+      },
+      {
+        name: 'views',
+        querySelector: 'body > div:nth-child(10) > div:nth-child(1) > div:nth-child(2) > p:nth-child(4)'
+      }
+    ]
   }
 ]
