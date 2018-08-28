@@ -50,8 +50,7 @@ module.exports = [
       {
         name: 'followers',
         querySelector: 'body > div:nth-child(10) > div:nth-child(1) > div:nth-child(2) > p:nth-child(3)'
-      },
-      {
+      }, {
         name: 'views',
         querySelector: 'body > div:nth-child(10) > div:nth-child(1) > div:nth-child(2) > p:nth-child(4)'
       }
