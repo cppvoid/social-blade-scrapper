@@ -1,0 +1,15 @@
+{
+  "name": "social-blade-scrapper",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "puppeteer": "^1.6.0",
+    "xlsx": "^0.13.2"
+  }
+}
