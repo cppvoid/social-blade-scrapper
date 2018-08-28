@@ -122,6 +122,7 @@ const youtubeSelectors = []
 const twitterSelectors = []
 const instagramSelectors = []
 const twitchSelectors = []
+const allPromises = []
 
 const getQuerySelectors = (username, site) => {
 
@@ -137,55 +138,68 @@ const getQuerySelectors = (username, site) => {
   return data
 }
 
-SLO.forEach( row => {
-  if(!!row[YOUTUBE_PROP])
-    youtubeSelectors.push(getQuerySelectors(row[YOUTUBE_PROP], 'youtube'))
-  if(row[TWITTER_PROP])
-    twitterSelectors.push(getQuerySelectors(row[TWITTER_PROP], 'twitter'))
-  if(row[INSTAGRAM_PROP])
-    instagramSelectors.push(getQuerySelectors(row[INSTAGRAM_PROP], 'instagram'))
-  if(row[TWITCH_PROP])
-    twitchSelectors.push(getQuerySelectors(row[TWITCH_PROP], 'twitch'))
-})
 
+const main = async () => {
+  SLO.forEach( row => {
+    if(!!row[YOUTUBE_PROP])
+      youtubeSelectors.push(getQuerySelectors(row[YOUTUBE_PROP], 'youtube'))
+    if(row[TWITTER_PROP])
+      twitterSelectors.push(getQuerySelectors(row[TWITTER_PROP], 'twitter'))
+    if(row[INSTAGRAM_PROP])
+      instagramSelectors.push(getQuerySelectors(row[INSTAGRAM_PROP], 'instagram'))
+    if(row[TWITCH_PROP])
+      twitchSelectors.push(getQuerySelectors(row[TWITCH_PROP], 'twitch'))
+  })
+  
+  
+  const youtubeData = []
+  const twitterData = []
+  const instagramData = []
+  const twitchData = []
+  
+  for( selector of youtubeSelectors) {
+    allPromises.push(
+      getSiteStatistics(selector).then( res => {
+      youtubeData.push(res)
+    }).catch( err => err))
+  }
+  
+  for( selector of twitterSelectors) {
+    allPromises.push(
+      getSiteStatistics(selector).then( res => {
+      twitterData.push(res)
+    }).catch( err => err))
+  }
+  
+  for( selector of instagramSelectors) {
+    allPromises.push(
+      getSiteStatistics(selector).then( res => {
+      instagramData.push(res)
+    }).catch( err => err))
+  }
+  
+  for( selector of twitchSelectors) {
+    allPromises.push(
+      getSiteStatistics(selector).then( res => {
+      const parsedQuerySelectors = res.querySelectors.map(querySelector => {
+        const [number] = querySelector.content.trim().split(' ')
+        querySelector.content = number
+  
+        return querySelector
+      })
+  
+      twitchData.push({...res, parsedQuerySelectors})
+    }).catch( err => err))
+  }
 
-const youtubeData = []
-const twitterData = []
-const instagramData = []
-const twitchData = []
+  await Promise.all(allPromises);
+  
+  // console.log(twitterData.map( el => el.querySelectors))
+} 
 
-for( selector of youtubeSelectors) {
-  getSiteStatistics(selector).then( res => {
-    youtubeData.push(res)
-  }).catch( err => err)
-}
+main()
 
-for( selector of twitterSelectors) {
-  getSiteStatistics(selector).then( res => {
-    twitterData.push(res)
-  }).catch( err => err)
-}
-
-for( selector of instagramSelectors) {
-  getSiteStatistics(selector).then( res => {
-    instagramData.push(res)
-  }).catch( err => err)
-}
-
-for( selector of twitchSelectors) {
-  getSiteStatistics(selector).then( res => {
-    const parsedQuerySelectors = res.querySelectors.map(querySelector => {
-      const [number] = querySelector.content.trim().split(' ')
-      querySelector.content = number
-
-      return querySelector
-    })
-
-    twitchData.push({...res, parsedQuerySelectors})
-  }).catch( err => err)
-}
-
-twitchData.forEach(data => console.log(data))
+// twitchData.forEach(data => console.log(data))
 
 // for debuging the scraping
 // const alecs = require('./alecs.json')

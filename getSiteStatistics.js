@@ -1,7 +1,8 @@
 const request = require('request-promise')
 const { JSDOM } = require('jsdom')
 
-const getSiteStatistics = async (selector) => {
+const getSiteStatistics = async (selector, timeout = false) => {
+
   let result
   const path = selector.site === 'youtube' ? '/channel/' : '/user/'
   try {
@@ -28,7 +29,14 @@ const getSiteStatistics = async (selector) => {
     }
 
   } catch(error) {
+    // retry
+    if(error.message === 'Error: socket hang up' || error.message === 'Error: read ECONNRESET') {
+      console.log(error.message + ' trying again')
+      return getSiteStatistics(selector)
+    }
     console.log('could not fetch the information for ' + selector.username + ' on ' + selector.site)
+    console.log(error.message)
+
     return Promise.reject(error.message)
   }
 

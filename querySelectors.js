@@ -27,7 +27,7 @@ module.exports = [
         querySelector: '#YouTubeUserTopInfoBlock > div:nth-child(4) > span:nth-child(3)'
       }, {
         name: 'tweets',
-        querySelector: '#YouTubeUserTopInfoBlock > div:nth-child(6) > span:nth-child(3)'
+        querySelector: '#YouTubeUserTopInfoBlock > div:nth-child(5) > span:nth-child(3)'
       }
     ]
   }, {
