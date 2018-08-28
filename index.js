@@ -1,6 +1,8 @@
 const puppeteer = require('puppeteer');
 const fs = require('fs')
 const XLSX = require('xlsx')
+const querySelectors = require('./querySelectors')
+const getSiteStatistics = require('./getSiteStatistics')
 
 const YOUTUBE_PROP = 'Nick Youtube'
 const TWITTER_PROP = 'Nick Twitter'
@@ -116,34 +118,66 @@ const workbook = XLSX.readFile('BBDD.xlsx');
 const SLO = XLSX.utils.sheet_to_json(workbook.Sheets.SLO)
 // const alecs = SLO[0]
 // console.log(SLO)
+const youtubeSelectors = []
+
+const getQuerySelectors = (username, site) => {
+
+  const querySelector = querySelectors.find(querySelector => querySelector.site === site)
+
+  const data = {
+    username,
+    site,
+    querySelectors: querySelector.querySelectors
+  }
+  // console.log(data)
+
+  return data
+}
+
+SLO.forEach( row => {
+  if(!!row[YOUTUBE_PROP])
+  youtubeSelectors.push(getQuerySelectors(row[YOUTUBE_PROP], 'youtube'))
+})
+
+
+const youtubeData = []
+
+
+
+for( selector of youtubeSelectors) {
+  getSiteStatistics(selector).then( res => {
+    youtubeData.push(res)
+    console.log(res)
+  }).catch( err => err)
+}
 
 
 // for debuging the scraping
 // const alecs = require('./alecs.json')
 
-scrapeUsers(SLO).then( data => {
-   const updatedSLO = SLO.map( row => {
+// scrapeUsers(SLO).then( data => {
+//    const updatedSLO = SLO.map( row => {
 
-    if(!row[YOUTUBE_PROP]) return row
+//     if(!row[YOUTUBE_PROP]) return row
 
-    let youtubeData = data.find( element => element.user === row[YOUTUBE_PROP] )
+//     let youtubeData = data.find( element => element.user === row[YOUTUBE_PROP] )
 
-    if(youtubeData) {
-      delete youtubeData.user
-      delete youtubeData.socialMedia
-      return {...row, ...youtubeData}
-    }
+//     if(youtubeData) {
+//       delete youtubeData.user
+//       delete youtubeData.socialMedia
+//       return {...row, ...youtubeData}
+//     }
 
-    return row
-    // console.log(youtubeData)
-  })
+//     return row
+//     // console.log(youtubeData)
+//   })
   
-  workbook.Sheets.SLO = XLSX.utils.json_to_sheet(updatedSLO)
+//   workbook.Sheets.SLO = XLSX.utils.json_to_sheet(updatedSLO)
 
-  XLSX.writeFile(workbook, 'workpluz.xlsx', null)
+//   XLSX.writeFile(workbook, 'workpluz.xlsx', null)
 
-  console.log(updatedSLO);
-})
+//   console.log(updatedSLO);
+// })
 
 // scrapeUsers('twitter', SLO.map(entry => entry['Twitter Handle'])).then( data => {
 //   console.log(data);
