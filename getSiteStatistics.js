@@ -28,3 +28,5 @@ const getSiteStatistics = async (selector) => {
     return selector
   }
 }
+
+module.exports = getSiteStatistics
