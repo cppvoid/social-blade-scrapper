@@ -113,7 +113,7 @@ function scrapeMedia(argsArray) {
 }
 
 
-const workbook = XLSX.readFile('BBDD.xlsx');
+const workbook = XLSX.readFile('BBDD.xlsx', { cellStyles: true, bookDeps: true, bookVBA: true});
 // SLO is the name of the excel page IDK why
 const SLO = XLSX.utils.sheet_to_json(workbook.Sheets.SLO)
 // const alecs = SLO[0]
@@ -124,31 +124,31 @@ const instagramSelectors = []
 const twitchSelectors = []
 const allPromises = []
 
-const getQuerySelectors = (username, site) => {
+const getQuerySelectors = (username, site, rowIndex) => {
 
   const querySelector = querySelectors.find(querySelector => querySelector.site === site)
 
   const data = {
     username,
     site,
-    querySelectors: querySelector.querySelectors
+    querySelectors: querySelector.querySelectors,
+    rowIndex
   }
   // console.log(data)
 
   return data
 }
 
-
 const main = async () => {
-  SLO.forEach( row => {
+  SLO.forEach((row, index) => {
     if(!!row[YOUTUBE_PROP])
-      youtubeSelectors.push(getQuerySelectors(row[YOUTUBE_PROP], 'youtube'))
+      youtubeSelectors.push(getQuerySelectors(row[YOUTUBE_PROP], 'youtube', index))
     if(row[TWITTER_PROP])
-      twitterSelectors.push(getQuerySelectors(row[TWITTER_PROP], 'twitter'))
+      twitterSelectors.push(getQuerySelectors(row[TWITTER_PROP], 'twitter', index))
     if(row[INSTAGRAM_PROP])
-      instagramSelectors.push(getQuerySelectors(row[INSTAGRAM_PROP], 'instagram'))
+      instagramSelectors.push(getQuerySelectors(row[INSTAGRAM_PROP], 'instagram', index))
     if(row[TWITCH_PROP])
-      twitchSelectors.push(getQuerySelectors(row[TWITCH_PROP], 'twitch'))
+      twitchSelectors.push(getQuerySelectors(row[TWITCH_PROP], 'twitch', index))
   })
   
   
@@ -194,12 +194,42 @@ const main = async () => {
 
   await Promise.all(allPromises);
   
-  // console.log(twitterData.map( el => el.querySelectors))
+  youtubeData.forEach(data => {
+    data.querySelectors.forEach( selector => {
+      const rowIndex = data.rowIndex + 1
+      workbook.Sheets.SLO[XLSX.utils.encode_cell({r: rowIndex , c: selector.colIndex})] = { v: selector.content}
+    })
+  })
+
+  twitchData.forEach(data => {
+    data.querySelectors.forEach( selector => {
+      const rowIndex = data.rowIndex + 1
+      workbook.Sheets.SLO[XLSX.utils.encode_cell({r: rowIndex , c: selector.colIndex})] = { v: selector.content}
+    })
+  })
+
+  twitterData.forEach(data => {
+    data.querySelectors.forEach( selector => {
+      console.log(data)
+      const rowIndex = data.rowIndex + 1
+      workbook.Sheets.SLO[XLSX.utils.encode_cell({r: rowIndex , c: selector.colIndex})] = { v: selector.content}
+    })
+  })
+
+  instagramData.forEach(data => {
+    data.querySelectors.forEach( selector => {
+      const rowIndex = data.rowIndex + 1
+      workbook.Sheets.SLO[XLSX.utils.encode_cell({r: rowIndex , c: selector.colIndex})] = { v: selector.content}
+    })
+  })
+
+
+  // workbook.Sheets.SLO = SLO
+  XLSX.writeFile(workbook, 'workpluz.xlsx', { Props: workbook.Props })
 } 
 
 main()
-
-// twitchData.forEach(data => console.log(data))
+// console.log(workbook.Props)
 
 // for debuging the scraping
 // const alecs = require('./alecs.json')
@@ -218,24 +248,11 @@ main()
 //     }
 
 //     return row
-//     // console.log(youtubeData)
 //   })
 
 //   workbook.Sheets.SLO = XLSX.utils.json_to_sheet(updatedSLO)
 
 //   XLSX.writeFile(workbook, 'workpluz.xlsx', null)
 
-//   console.log(updatedSLO);
 // })
 
-// scrapeUsers('twitter', SLO.map(entry => entry['Twitter Handle'])).then( data => {
-//   console.log(data);
-// })
-
-// scrapeUsers('instagram', SLO.map(entry => entry['IG name'])).then( data => {
-//   console.log(data);
-// })
-
-// scrapeUsers('twitch', SLO.map(entry => entry['Twitch name'])).then( data => {
-//   console.log(data);
-// })

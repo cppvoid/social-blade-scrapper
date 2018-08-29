@@ -31,11 +31,11 @@ const getSiteStatistics = async (selector, timeout = false) => {
   } catch(error) {
     // retry
     if(error.message === 'Error: socket hang up' || error.message === 'Error: read ECONNRESET') {
-      console.log(error.message + ' trying again')
+      // console.log(error.message + ' trying again')
       return getSiteStatistics(selector)
     }
     console.log('could not fetch the information for ' + selector.username + ' on ' + selector.site)
-    console.log(error.message)
+    // console.log(error.message)
 
     return Promise.reject(error.message)
   }
